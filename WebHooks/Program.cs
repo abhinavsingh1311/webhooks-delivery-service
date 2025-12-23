@@ -1,10 +1,20 @@
+using Microsoft.EntityFrameworkCore;
 using WebHooks.Components;
+using WebHooks.Workers;
+using Webhooks_System_Library;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddBackendDependencies(options =>
+options.UseSqlServer(
+    builder.Configuration.GetConnectionString("WebhooksDeliveryDatabase")));
+
+
+builder.Services.AddHostedService<DeliveryWorker>();
 
 var app = builder.Build();
 

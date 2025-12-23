@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Webhooks_System_Library.Data;
+using Webhooks_System_Library.Repositories;
 using Webhooks_System_Library.Services;
 
 namespace Webhooks_System_Library
@@ -28,15 +29,11 @@ namespace Webhooks_System_Library
 
             //  adding any services that you create in the class library (BLL)
             //  using .AddTransient<t>(...
-            services.AddTransient<DeliveryService>((ServiceProvider) =>
-            {
-                //  Retrieve an instance of context from the service provider.
-                var context = ServiceProvider.GetService<WebhooksDeliveryContext>();
 
-                // Create a new instance of deliveryservice,
-                //   passing the  instance as a parameter.
-                return new DeliveryService(context);
-            });
+            services.AddScoped<IWebHookRepo, WebHookService>();
+
+
+            services.AddHttpClient<IDeliveryService, DeliveryService>();
 
         }
     }

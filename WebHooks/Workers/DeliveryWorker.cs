@@ -27,13 +27,14 @@ namespace WebHooks.Workers
                     var deliveryScope = scope.ServiceProvider.GetRequiredService<IDeliveryService>();
                     await deliveryScope.ProcessPendingEventsAsync();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "An error occurred while processing pending events in DeliveryWorker.");
                 }
-            await Task.Delay(_pollingInterval, stoppingToken);
+                await Task.Delay(_pollingInterval, stoppingToken);
             }
 
             _logger.LogInformation("DeliveryWorker stopped at: {time}", DateTimeOffset.Now);
         }
+    }
 }
