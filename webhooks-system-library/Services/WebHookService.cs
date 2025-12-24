@@ -90,11 +90,16 @@ namespace Webhooks_System_Library.Services
         //Task<List<WebhookEvent>> GetEventsByStatusAsync(WebHookStatus status);
         public async Task<List<WebhookEvent>> GetEventsByStatusAsync(WebHookStatus status)
         {
-            return await _context.WebhookEvents
+            Console.WriteLine($"Filtering by status: {status} (value: {(byte)status})");
+
+            var results = await _context.WebhookEvents
                 .Include(e => e.EventPoint)
                 .Where(e => e.Status == status)
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
+
+            Console.WriteLine($"Found {results.Count} events");
+            return results;
         }
 
         //Task<WebhookEvent?> GetEventByIdAsync(int id);

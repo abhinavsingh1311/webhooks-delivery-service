@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace Webhooks_System_Library.Entities
 {
-    public enum WebHookStatus :byte
-    {
-        Delivered =1,
-        DeadLetter=3,
-        Pending=0,
-        Failed=2
+    public enum WebHookStatus : byte
+    { 
+      Pending = 0,
+      Delivered = 1,
+      Failed = 2,
+      DeadLetter = 3
     }
 }
+

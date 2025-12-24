@@ -1,12 +1,30 @@
 ﻿@page "/"
+<PageTitle>Webhook Delivery Service</PageTitle>
 
-<PageTitle>Home</PageTitle>
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Webhook Delivery Service</h1>
+        <p class="lead text-muted">Reliable webhook delivery with automatic retries and guaranteed delivery</p>
+    </div>
 
-<h1>Webhooks delivery Service</h1>
-
-<div class="container">
-    <div class="flex flex-column">
-        <a href="/endpoints">Go to the endpoint page</a>
-        <a href="/events">Go check the events</a>
+    <div class="row justify-content-center">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Endpoints</h5>
+                    <p class="card-text">Manage webhook destinations</p>
+                    <a href="/endpoints" class="btn btn-primary">Manage Endpoints</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Events</h5>
+                    <p class="card-text">View delivery status and send test events</p>
+                    <a href="/events" class="btn btn-primary">View Events</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
