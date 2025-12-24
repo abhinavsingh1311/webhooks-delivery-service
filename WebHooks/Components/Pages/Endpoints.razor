@@ -1,0 +1,48 @@
+﻿@page "/endpoints"
+@rendermode InteractiveServer
+
+<h3>Endpoints</h3>
+
+<div class="container">
+    <div class="mb-4">
+        <form action="/" method="post">
+            <input @bind="newEndpoint.Name" placeholder="Name" class="form-control mb-2" />
+            <input @bind="newEndpoint.Url" placeholder="URL" class="form-control mb-2" />
+            <input @bind="newEndpoint.Secret" placeholder="Secret" class="form-control mb-2" />
+            <button @onclick="AddEndpoint" class="btn btn-primary">Add</button>
+        </form> 
+
+    <!-- List existing endpoints -->
+            <table class="table">
+             <thead>
+              <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Active</th>
+            <th>Actions</th>
+         </tr>
+        </thead>
+             <tbody>
+                @foreach (var ep in endpoints)
+                {
+                    <tr>
+                        <td>@ep.Id</td>
+                        <td>@ep.Name</td>
+                        <td>@ep.Url</td>
+                        <td>@(ep.IsActive ? "Yes" : "No")</td>
+                        <td>
+                            <button @onclick="() => DeleteEndpoint(ep.Id)" class="btn btn-danger btn-sm">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+       
+    </div>
+</div>
+
+@code {
+
+}

@@ -16,8 +16,11 @@ namespace Webhooks_System_Library.Repositories
 
         Task UpdateEndpointAsync(WebhookEp endpoint);
         Task DeleteEndpointAsync(int id);
-        
+
+
         //Events
+        Task<List<WebhookEvent>> GetAllEventsAsync();
+        Task<List<WebhookEvent>> GetEventsByStatusAsync(WebHookStatus status);
         Task<WebhookEvent?> GetEventByIdAsync(int id);
         Task<WebhookEvent> CreateEventAsync(WebhookEvent webhookEvent);
         Task UpdateEventAsync(WebhookEvent webhookEvent);

@@ -23,6 +23,7 @@ namespace WebHooks.Workers
             {
                 try
                 {
+                    _logger.LogInformation("Worker checking for pending events...");
                     using var scope = _serviceProvider.CreateScope();
                     var deliveryScope = scope.ServiceProvider.GetRequiredService<IDeliveryService>();
                     await deliveryScope.ProcessPendingEventsAsync();

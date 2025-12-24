@@ -80,6 +80,23 @@ namespace Webhooks_System_Library.Services
 
 
         ////Events
+
+        //Task<List<WebhookEvent>> GetAllEventsAsync();
+        public async Task<List<WebhookEvent>> GetAllEventsAsync()
+        {
+            return await _context.WebhookEvents.Include(e => e.EventPoint).OrderByDescending(e=> e.CreatedAt).ToListAsync();
+        }
+
+        //Task<List<WebhookEvent>> GetEventsByStatusAsync(WebHookStatus status);
+        public async Task<List<WebhookEvent>> GetEventsByStatusAsync(WebHookStatus status)
+        {
+            return await _context.WebhookEvents
+                .Include(e => e.EventPoint)
+                .Where(e => e.Status == status)
+                .OrderByDescending(e => e.CreatedAt)
+                .ToListAsync();
+        }
+
         //Task<WebhookEvent?> GetEventByIdAsync(int id);
 
         public async Task<WebhookEvent?> GetEventByIdAsync(int id)
