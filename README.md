@@ -114,12 +114,6 @@ dotnet run
 
 The application will be available at `https://localhost:7068`.
 
-### Using Docker
-
-```bash
-docker-compose up -d
-```
-
 ## Configuration
 
 Update `appsettings.json` with your settings:
