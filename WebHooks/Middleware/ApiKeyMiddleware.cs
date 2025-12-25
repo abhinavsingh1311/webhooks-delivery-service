@@ -38,6 +38,13 @@ namespace WebHooks.Middleware
                 await _next.Invoke(httpContext);
                 return;
             }
+            // Allow public access to create endpoints
+            if (httpContext.Request.Path.StartsWithSegments("/api/endpoints")
+                && httpContext.Request.Method == "POST")
+            {
+                await _next.Invoke(httpContext);
+                return;
+            }
             //Read header X-API - Key from request
             var header = httpContext.Request.Headers["X-API-KEY"].FirstOrDefault();
             //If missing, return 401 Unauthorized

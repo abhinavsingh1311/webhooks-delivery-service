@@ -22,6 +22,8 @@ namespace WebHooks.Components.Pages
 
         private List<string> errors = [];
 
+        private int? selectedEndpointId = null; 
+
         #endregion
 
         [Inject]
@@ -49,14 +51,20 @@ namespace WebHooks.Components.Pages
             // Implementation for loading events
             try
             {
-                if (selectedFilter is null)
+                if (selectedEndpointId.HasValue)
                 {
-                    events = await WebHookRepo.GetAllEventsAsync();
+                    // Filter by endpoint
+                    events = await WebHookRepo.GetEventsByEndpointIdAsync(selectedEndpointId.Value);
                 }
-                //  convert selectedFilter to WebHookStatus enum
+                else if (selectedFilter.HasValue)
+                {
+                    // Filter by status
+                    events = await WebHookRepo.GetEventsByStatusAsync(selectedFilter.Value);
+                }
                 else
                 {
-                    events = await WebHookRepo.GetEventsByStatusAsync(selectedFilter.Value);
+                    // Show all
+                    events = await WebHookRepo.GetAllEventsAsync();
                 }
 
                 endpoints = await WebHookRepo.GetAllEndpointsAsync();
@@ -71,6 +79,18 @@ namespace WebHooks.Components.Pages
                 throw new Exception("An error occurred while loading events.", ex);
             }
 
+        }
+        private async Task OnEndpointFilterChanged(ChangeEventArgs e)
+        {
+            if (int.TryParse(e.Value?.ToString(), out int endpointId))
+            {
+                selectedEndpointId = endpointId;
+            }
+            else
+            {
+                selectedEndpointId = null;
+            }
+            await LoadEvents();
         }
 
         private async Task FilterChanged(WebHookStatus? status)

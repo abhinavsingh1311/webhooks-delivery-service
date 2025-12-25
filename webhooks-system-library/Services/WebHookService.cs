@@ -142,8 +142,28 @@ namespace Webhooks_System_Library.Services
             }
         }
 
+        //Task<List<WebhookEvent>> GetEventsByEndpointIdAsync(int endpointId);
+
+        public async Task<List<WebhookEvent>> GetEventsByEndpointIdAsync(int endpointId)
+        {
+            try
+            {
+                var result = await _context.WebhookEvents.Include(ep => ep.EventPoint)
+                       .Where(e => e.EventPointId == endpointId)
+                       .OrderByDescending(e=> e.CreatedAt)
+                       .ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occured while fetching events for endpoint {endpointId}", ex);
+            }
+        }
+
+
         //Task UpdateEventAsync(WebhookEvent webhookEvent);
-           
+
         public async Task UpdateEventAsync(WebhookEvent webhookEvent)
         {
             try

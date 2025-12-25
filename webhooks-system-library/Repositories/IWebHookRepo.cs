@@ -22,6 +22,7 @@ namespace Webhooks_System_Library.Repositories
         //Events
         Task<List<WebhookEvent>> GetAllEventsAsync();
         Task<List<WebhookEvent>> GetEventsByStatusAsync(WebHookStatus status);
+        Task<List<WebhookEvent>> GetEventsByEndpointIdAsync(int endpointId);
         Task<WebhookEvent?> GetEventByIdAsync(int id);
         Task<WebhookEvent> CreateEventAsync(WebhookEvent webhookEvent);
         Task UpdateEventAsync(WebhookEvent webhookEvent);

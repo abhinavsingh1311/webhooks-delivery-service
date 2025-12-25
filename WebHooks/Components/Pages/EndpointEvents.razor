@@ -1,0 +1,156 @@
+﻿@page "/endpoints/{endpointId:int}/events"
+@using Webhooks_System_Library.Entities
+@rendermode InteractiveServer
+
+<div class="container mt-4">
+
+    <!-- Header with back link -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="/endpoints" class="btn btn-outline-secondary me-3">Back</a>
+        <h2 class="mb-0">Events for @(endpoint?.Name ?? "Loading...")</h2>
+    </div>
+
+    <!-- Endpoint Info -->
+    @if (endpoint != null)
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <strong>URL:</strong> <code>@endpoint.Url</code>
+                <span class="ms-3">
+                    <strong>Status:</strong>
+                    @if (endpoint.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactive</span>
+                    }
+                </span>
+            </div>
+        </div>
+    }
+
+    <!-- Errors -->
+    @if (errors.Any())
+    {
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach (var error in errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- Feedback -->
+    @if (!string.IsNullOrEmpty(feedbackMessage))
+    {
+        <div class="alert alert-success alert-dismissible">
+            @feedbackMessage
+        </div>
+    }
+
+    <!-- Filter Buttons -->
+    <div class="btn-group mb-4">
+        <button class="btn @(selectedFilter == null ? "btn-primary" : "btn-outline-primary")"
+                @onclick="() => FilterChanged(null)">
+            All
+        </button>
+        <button class="btn @(selectedFilter == WebHookStatus.Pending ? "btn-warning" : "btn-outline-warning")"
+                @onclick="() => FilterChanged(WebHookStatus.Pending)">
+            Pending
+        </button>
+        <button class="btn @(selectedFilter == WebHookStatus.Delivered ? "btn-success" : "btn-outline-success")"
+                @onclick="() => FilterChanged(WebHookStatus.Delivered)">
+            Delivered
+        </button>
+        <button class="btn @(selectedFilter == WebHookStatus.Failed ? "btn-danger" : "btn-outline-danger")"
+                @onclick="() => FilterChanged(WebHookStatus.Failed)">
+            Failed
+        </button>
+        <button class="btn @(selectedFilter == WebHookStatus.DeadLetter ? "btn-dark" : "btn-outline-dark")"
+                @onclick="() => FilterChanged(WebHookStatus.DeadLetter)">
+            Dead Letter
+        </button>
+    </div>
+
+    <!-- Events Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>Event History</strong>
+            <span class="badge bg-secondary ms-2">@events.Count</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Event Type</th>
+                        <th>Status</th>
+                        <th>Attempts</th>
+                        <th>Response</th>
+                        <th>Created</th>
+                        <th>Delivered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ev in events)
+                    {
+                        <tr>
+                            <td>@ev.Id</td>
+                            <td><code>@ev.EventType</code></td>
+                            <td>
+                                @switch (ev.Status)
+                                {
+                                    case WebHookStatus.Pending:
+                                        <span class="badge bg-warning">Pending</span>
+                                        break;
+                                    case WebHookStatus.Delivered:
+                                        <span class="badge bg-success">Delivered</span>
+                                        break;
+                                    case WebHookStatus.Failed:
+                                        <span class="badge bg-danger">Failed</span>
+                                        break;
+                                    case WebHookStatus.DeadLetter:
+                                        <span class="badge bg-dark">Dead Letter</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@ev.AttemptCount / 6</td>
+                            <td><code>@(ev.LastResponsecode?.ToString() ?? "-")</code></td>
+                            <td>@ev.CreatedAt.ToString("MMM dd, HH:mm")</td>
+                            <td>@(ev.DeliveredAt?.ToString("MMM dd, HH:mm") ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!events.Any())
+        {
+            <div class="text-center py-4 text-muted">No events found</div>
+        }
+    </div>
+
+    <!-- Send Test Event -->
+    <div class="card">
+        <div class="card-header">
+            <strong>Send Test Event</strong>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Event Type</label>
+                    <input class="form-control" @bind="newEvent.EventType" placeholder="order.created" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Payload (JSON)</label>
+                    <textarea class="form-control font-monospace" @bind="newEvent.Payload" rows="3" placeholder='{"key": "value"}'></textarea>
+                </div>
+            </div>
+            <button class="btn btn-primary mt-3" @onclick="SubmitHandler">Send Event</button>
+        </div>
+    </div>
+
+</div>

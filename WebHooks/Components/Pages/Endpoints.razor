@@ -44,8 +44,10 @@
                 <th>Name</th>
                 <th>URL</th>
                 <th>Status</th>
+                <th>Events</th>
                 <th>Created</th>
                 <th>Actions</th>
+
              </tr>
             </thead>
                  <tbody>
@@ -65,10 +67,15 @@
                                         <span class="badge bg-secondary">Inactive</span>
                                     }
                                 </td>
+                                <td>
+                                   <button class="btn btn-link" @onclick="(() =>Navigate(ep.Id))">View Events</button>
+                                </td>
                                 <td>@ep.CreatedAt.ToString("MMM dd, yyyy")</td>
                                 <td>
                                     <button @onclick="() => DeleteEndpoint(ep.Id)" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    <button @onclick="()=> ToggleEndpoints(ep.Id)" class="btn-outline-warning btn-sm">@(ep.IsActive? "Disable": "Enable")</button>
                                 </td>
+
                             </tr>
                     }
                 </tbody>

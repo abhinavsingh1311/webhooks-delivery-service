@@ -53,6 +53,15 @@
             <h5 class="mb-0">Event History</h5>
         </div>
         <div class="card-body p-0">
+            <div class="card-body mb-4">
+                <select @onchange="OnEndpointFilterChanged">
+                <option value="">All Endpoints</option>
+                @foreach(var ep in endpoints)
+                {
+                    <option value="@ep.Id">@ep.Name</option> 
+                }
+                </select>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
@@ -76,7 +85,7 @@
                                     @switch (ev.Status)
                                     {
                                         case WebHookStatus.Pending:
-                                            <span class="badge bg-warning">Pending</span>
+                                            <span class="badge bg-primary">Pending</span>
                                             break;
                                         case WebHookStatus.Delivered:
                                             <span class="badge bg-success">Delivered</span>

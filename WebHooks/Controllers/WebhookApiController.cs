@@ -29,7 +29,8 @@ namespace WebHooks.Controllers
                 endpoint.Name,
                 endpoint.Url,
                 endpoint.IsActive,
-                endpoint.CreatedAt
+                endpoint.CreatedAt,
+                endpoint.ApiKey
             });
         }
 
@@ -40,7 +41,8 @@ namespace WebHooks.Controllers
         {
             var eventId = await _webHookRepo.CreateEventAsync(evt);
             return CreatedAtAction(nameof(SendEvent), new { id = eventId.Id }, new {
-            eventId.EventPointId,
+            EventId = eventId.Id,
+            EndPointId = eventId.EventPointId,
             eventId.EventType,
             eventId.Payload,
             eventId.CreatedAt,
@@ -82,6 +84,20 @@ namespace WebHooks.Controllers
         {
             var deadLetters = await _webHookRepo.GetDeadLetterEventsAsync();
             return Ok(deadLetters);
+        }
+
+        //toggle active endpoints
+        [HttpPatch("/endpoints/{id}/toggle")]
+        public async Task<IActionResult> ToggleEndpoints(int id)
+        {
+            var endpoints = await _webHookRepo.GetEndpointByIdAsync(id);
+            if (endpoints == null)
+            {
+                return NotFound();
+            }
+            endpoints.IsActive = !endpoints.IsActive;
+            await _webHookRepo.UpdateEndpointAsync(endpoints);
+            return Ok(new {endpoints.Id, endpoints.IsActive});
         }
     }
 }

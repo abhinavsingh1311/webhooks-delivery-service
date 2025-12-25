@@ -16,6 +16,8 @@ namespace WebHooks.Components.Pages
 
         private WebhookEp  newEndpoint = new();
 
+        [Inject]
+        NavigationManager navigation {  get; set; }
       
         #endregion
 
@@ -40,6 +42,19 @@ namespace WebHooks.Components.Pages
         {
             await WebHookService.DeleteEndpointAsync(id);
             await LoadEndpoints();
+        }
+
+        private async Task ToggleEndpoints(int id)
+        {
+            var endpoint = await WebHookService.GetEndpointByIdAsync(id);
+            endpoint.IsActive = !endpoint.IsActive;
+            await WebHookService.UpdateEndpointAsync(endpoint);
+            await LoadEndpoints();
+        }
+
+        private void Navigate(int id)
+        {
+           navigation.NavigateTo($"/endpoints/{id}/events");
         }
 
         #endregion
