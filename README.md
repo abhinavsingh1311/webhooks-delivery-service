@@ -371,4 +371,4 @@ Headers sent with each webhook:
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the [MIT License](LICENCE.md). See `LICENSE` for more information.
