@@ -10,6 +10,8 @@
 
 A durable webhook delivery system built with .NET 9 and SQL Server that guarantees at-least-once delivery with automatic retries and exponential backoff.
 
+[Live Demo](https://webhook-delivery-b6bshhhtg4gyf5gm.canadacentral-01.azurewebsites.net)
+
 ## Table of Contents
 
 - [About](#about)
@@ -53,23 +55,33 @@ This service solves the problem of reliable event delivery to external endpoints
 ## Project Structure
 
 ```
-WebhookService/
-├── src/
-│   ├── WebhookService.Web/           # ASP.NET Core Web App (UI + API)
-│   └── WebhookService.Library/       # Class Library (BLL, DAL, DbContext)
+|---WebHooks/   # ASP.NET Core Web App (UI + API)
+|       |
+|       |--- Components/
+|       |         |--- Pages/
+|       |         |      |--- Events.razor + .cs (partial class)
+|       |         |      |___ Endpoints.razor + .cs (partial class)
+|       |         |      |___ Home.razor
+|       |         |---- Layout/  
+|       |---- Workers/
+|       |         |--- DeliveryWorker.cs
+|       |---- Program.cs
+|
+├── WebHooks-System-Library/       # Class Library (BLL, DAL, DbContext)
 │       ├── Data/
-│       │   └── WebhookDbContext.cs
-│       ├── Models/
-│       │   ├── WebhookEndpoint.cs
-│       │   └── WebhookEvent.cs
+│       │   └── WebhooksDeliveryContext.cs
+│       ├── Entities/
+│       │   ├── WebhookEp.cs
+│       │   |── WebhookEvent.cs
+|       |   |-- WebhookStatus.cs
 │       ├── Repositories/
-│       │   └── IWebhookRepository.cs
+|       |   ├── IDeliveryService.cs
+│       │   └── IWebhookRepo.cs
 │       └── Services/
-│           ├── IDeliveryService.cs
-│           └── ISignatureService.cs
+│           ├── DeliveryService.cs
+│           └── WebHookService.cs
 ├── tests/
-│   └── WebhookService.Tests/
-├── docker-compose.yml
+│   └── WebHooks.Tests/ (future implementation)
 └── README.md
 ```
 
@@ -85,13 +97,13 @@ WebhookService/
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/webhook-delivery-service.git
+git clone https://github.com/abhinavsingh1311/webhook-delivery-service.git
 cd webhook-delivery-service
 ```
 
 2. Set up the database
 ```bash
-cd src/WebhookService.Web
+cd WebHooks
 dotnet ef database update
 ```
 
@@ -100,13 +112,7 @@ dotnet ef database update
 dotnet run
 ```
 
-The application will be available at `https://localhost:5001`.
-
-### Using Docker
-
-```bash
-docker-compose up -d
-```
+The application will be available at `https://localhost:7068`.
 
 ## Configuration
 
@@ -114,14 +120,9 @@ Update `appsettings.json` with your settings:
 
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=WebhookService;Trusted_Connection=true;TrustServerCertificate=true;"
-  },
-  "WebhookSettings": {
-    "MaxRetryAttempts": 6,
-    "BatchSize": 10,
-    "PollingIntervalSeconds": 5
-  }
+   "ConnectionStrings": {
+   "WebhooksDeliveryDatabase": "Server=.;Database=Webhooks-Delivery;Trusted_Connection=true;TrustServerCertificate=true;"
+ },
 }
 ```
 
