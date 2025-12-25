@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using WebHooks.Components;
+using WebHooks.Middleware;
 using WebHooks.Workers;
 using Webhooks_System_Library;
 
@@ -17,8 +19,17 @@ builder.Services.AddControllers();
 
 builder.Services.AddHostedService<DeliveryWorker>();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
+if(app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+app.UseMiddleware<ApiKeyMiddleware>();
 app.MapControllers();
 
 // Configure the HTTP request pipeline.

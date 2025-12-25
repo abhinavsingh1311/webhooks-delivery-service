@@ -31,6 +31,9 @@ namespace Webhooks_System_Library.Services
         {
             try
             {
+                // update CreateEndpointAsync to generate API key
+                endpoint.IsActive = true;
+                endpoint.ApiKey = Guid.NewGuid().ToString("N");
                 _context.WebhookEps.Add(endpoint);
                 await _context.SaveChangesAsync();
                 return endpoint;
@@ -39,6 +42,19 @@ namespace Webhooks_System_Library.Services
             {
                 // Handle exception (e.g., log it)
                 throw new Exception("An error occurred while creating the endpoint.", ex);
+            }
+        }
+
+        //Task<WebhookEp?> GetEndpointsByApiKeyAsync(string apiKey);
+        public async Task<WebhookEp?> GetEndpointsByApiKeyAsync(string apiKey)
+        {
+            try {
+                return await _context.WebhookEps.FirstOrDefaultAsync(e => e.ApiKey == apiKey);
+            }
+            catch (Exception ex)
+            {
+                // Handle exception (e.g., log it)
+                throw new Exception("An error occurred while retrieving the endpoint by API key.", ex);
             }
         }
 

@@ -17,6 +17,8 @@ public partial class WebhookEp
 
     public bool IsActive { get; set; }
 
+    public string ApiKey { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<WebhookEvent> WebhookEvents { get; set; } = new List<WebhookEvent>();
