@@ -13,10 +13,13 @@ builder.Services.AddBackendDependencies(options =>
 options.UseSqlServer(
     builder.Configuration.GetConnectionString("WebhooksDeliveryDatabase")));
 
+builder.Services.AddControllers();
 
 builder.Services.AddHostedService<DeliveryWorker>();
 
 var app = builder.Build();
+
+app.MapControllers();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
