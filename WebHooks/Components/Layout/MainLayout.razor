@@ -6,11 +6,21 @@
     </div>
 
     <main>
-        <article class="content px-4">
-            @Body
-        </article>
-        <div class="align-text-bottom px-4">
-            <a class="" href="https://github.com/abhinavsingh1311" target="_blank">About me</a>
+        <div class="d-flex flex-column min-vh-100 bg-dark-subtle bg-gradient">
+            <article class="content px-4 flex-grow-1">
+                @Body
+            </article>
+
+            <div class="mt-auto p-3 text-center border-top">
+                <a class="text-decoration-none text-primary fw-medium"
+                   href="https://github.com/abhinavsingh1311"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <span class="bi bi-github"></span> About me
+                </a>
+                <span class="mx-2">•</span>
+                <span class="text-muted small">Personal Project</span>
+            </div>
         </div>
 
     </main>

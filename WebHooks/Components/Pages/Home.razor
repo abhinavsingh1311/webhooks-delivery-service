@@ -1,30 +1,264 @@
 ﻿@page "/"
-<PageTitle>Webhook Delivery Service</PageTitle>
+@inherits LayoutComponentBase
 
 <div class="container mt-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4">Webhook Delivery Service</h1>
-        <p class="lead text-muted">Reliable webhook delivery with automatic retries and guaranteed delivery</p>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Endpoints</h5>
-                    <p class="card-text">Manage webhook destinations</p>
-                    <a href="/endpoints" class="btn btn-primary">Manage Endpoints</a>
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                Reliable Webhook Delivery Service
+            </h1>
+            <p class="lead mb-4">
+                A durable webhook delivery system built with .NET 9 and SQL Server that guarantees at-least-once delivery with automatic retries and exponential backoff.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <span class="badge bg-primary fs-6">.NET 9</span>
+                <span class="badge bg-success fs-6">ASP.NET Core</span>
+                <span class="badge bg-info fs-6">SQL Server</span>
+                <span class="badge bg-warning fs-6">Entity Framework Core</span>
+                <span class="badge bg-secondary fs-6">Docker Support</span>
+            </div>
+            <div class="d-flex gap-3">
+                <a href="/endpoints" class="btn btn-primary btn-lg">
+                    <span class="bi bi-rocket-takeoff me-2"></span>Get Started
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-center mb-4">Webhook Delivery Flow</h5>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6>1. Event Created</h6>
+                                <p class="text-muted small">Event persists to database as "Pending"</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6>2. Background Processing</h6>
+                                <p class="text-muted small">Worker claims pending events every 5 seconds</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6>3. Delivery Attempt</h6>
+                                <p class="text-muted small">HTTP POST with HMAC-SHA256 signature</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning"></div>
+                            <div class="timeline-content">
+                                <h6>4. Retry Logic</h6>
+                                <p class="text-muted small">Exponential backoff with jitter (6 max retries)</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-danger"></div>
+                            <div class="timeline-content">
+                                <h6>5. Dead Letter Queue</h6>
+                                <p class="text-muted small">Permanent failures moved for manual inspection</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Events</h5>
-                    <p class="card-text">View delivery status and send test events</p>
-                    <a href="/events" class="btn btn-primary">View Events</a>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mb-5" id="features">
+        <div class="col-12">
+            <h2 class="text-center mb-5">Key Features</h2>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="icon-wrapper bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                        <span class="bi bi-shield-check text-primary" style="font-size: 2rem;"></span>
+                    </div>
+                    <h5 class="card-title">Reliable Delivery</h5>
+                    <p class="card-text">Guaranteed at-least-once delivery with durable event persistence before acknowledgment.</p>
                 </div>
             </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="icon-wrapper bg-success bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                        <span class="bi bi-arrow-repeat text-success" style="font-size: 2rem;"></span>
+                    </div>
+                    <h5 class="card-title">Smart Retries</h5>
+                    <p class="card-text">Automatic retries with exponential backoff and jitter. Configurable max attempts (default: 6).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="icon-wrapper bg-info bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
+                        <span class="bi bi-lock text-info" style="font-size: 2rem;"></span>
+                    </div>
+                    <h5 class="card-title">Secure Signatures</h5>
+                    <p class="card-text">HMAC-SHA256 payload signing for receiver verification. API key authentication.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Section -->
+    <div class="row mb-5" id="demo">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Quick Demo</h2>
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">1. Register a Webhook Endpoint</h5>
+                            <div class="code-block bg-dark text-light p-3 rounded mb-4">
+                                <small>
+                                    POST /api/endpoints<br>
+                                    {<br>
+                                    &nbsp;&nbsp;"name": "My Webhook",<br>
+                                    &nbsp;&nbsp;"url": "https://webhook.site/your-id",<br>
+                                    &nbsp;&nbsp;"secret": "your-secret-key"<br>
+                                    }
+                                </small>
+                            </div>
+                            <p>No API key required for registration. Save the returned API key.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">2. Send an Event</h5>
+                            <div class="code-block bg-dark text-light p-3 rounded mb-4">
+                                <small>
+                                    POST /api/events<br>
+                                    X-API-Key: your-api-key<br>
+                                    {<br>
+                                    &nbsp;&nbsp;"eventPointId": 1,<br>
+                                    &nbsp;&nbsp;"eventType": "order.created",<br>
+                                    &nbsp;&nbsp;"payload": "{\"orderId\": 123}"<br>
+                                    }
+                                </small>
+                            </div>
+                            <p>Watch the delivery attempts and retry logic in action.</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="/endpoints" class="btn btn-success btn-lg">
+                            <span class="bi bi-terminal me-2"></span>Try It Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Problem/Solution Section -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card border-danger border-2 h-100">
+                <div class="card-body p-4">
+                    <h4 class="text-danger"><span class="bi bi-x-circle me-2"></span>The Problem</h4>
+                    <p class="card-text">Traditional webhook implementations lose events when:</p>
+                    <ul>
+                        <li>Network failures occur</li>
+                        <li>Third-party services are down</li>
+                        <li>Timeouts happen</li>
+                        <li>No retry mechanism exists</li>
+                    </ul>
+                    <p>This leads to data inconsistency between systems.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-success border-2 h-100">
+                <div class="card-body p-4">
+                    <h4 class="text-success"><span class="bi bi-check-circle me-2"></span>The Solution</h4>
+                    <p class="card-text">This service guarantees delivery by:</p>
+                    <ul>
+                        <li>Persisting events before acknowledging receipt</li>
+                        <li>Processing asynchronously with automatic retries</li>
+                        <li>Implementing exponential backoff with jitter</li>
+                        <li>Moving permanent failures to dead letter queue</li>
+                    </ul>
+                    <p>Ensuring no event is lost in transit.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats/Call to Action -->
+    <div class="text-center py-5 bg-light rounded-3">
+        <h3 class="mb-3">Ready to Ensure Reliable Webhook Delivery?</h3>
+        <p class="lead mb-4">Start delivering webhooks with confidence. No more lost events.</p>
+        <a href="/endpoints" class="btn btn-primary btn-lg px-5">
+            <span class="bi bi-rocket-takeoff me-2"></span>Get Started
+        </a>
+        <div class="mt-4">
+            <small class="text-muted">
+                <span class="bi bi-github me-1"></span>
+                <a href="https://github.com/abhinavsingh1311/webhooks-delivery-service" target="_blank" class="text-decoration-none">
+                    View on GitHub
+                </a>
+            </small>
         </div>
     </div>
 </div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--bs-primary), var(--bs-danger));
+        }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -33px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px var(--bs-primary);
+    }
+
+    .timeline-content {
+        padding-left: 10px;
+    }
+
+    .icon-wrapper {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .icon-wrapper {
+        transform: scale(1.1);
+    }
+
+    .code-block {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+</style>
