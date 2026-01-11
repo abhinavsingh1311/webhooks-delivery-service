@@ -12,8 +12,6 @@ A durable webhook delivery system built with .NET 9 and SQL Server that guarante
 # WEBSITE DEMO
 ![Website](WebHooks/wwwroot/demo.png)
 
-[Live Demo](https://webhook-delivery-b6bshhhtg4gyf5gm.canadacentral-01.azurewebsites.net)
-
 ## Table of Contents
 
 - [About](#about)
