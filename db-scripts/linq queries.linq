@@ -56,6 +56,14 @@ update WebhookEvents
 set Status =1, DeliveredAt = getutcdate(), ProcessingLockUntil = null
 where id =1;
 
+INSERT INTO WebhookEvents (EventPointId, EventType, Payload)
+VALUES (1, 'test.event', '{"message": "hello"}');
 --check
-select * from WebhookEvents
+select * from WebhookEvents where id = 9;
 
+SELECT Id, Name, ApiKey FROM WebhookEPs;
+
+SELECT * FROM WebhookEPs ORDER BY Id DESC;
+
+
+SELECT Id, Name, Url, IsActive, ApiKey FROM WebhookEPs WHERE Id = 7;

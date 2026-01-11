@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Delivery Service</title>
+    <meta name="description" content="A durable webhook delivery system built with .NET 9 and SQL Server.">
+    <link href="global.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="favicon.png" />
+</head>
+<body>
+
+    <header>
+        <h1>WEBHOOK DELIVERY SERVICE</h1>
+        <p>Reliable webhook delivery with automatic retries | .NET 9 + SQL Server</p>
+    </header>
+
+    <nav>
+        [<a href="#about">About</a>]
+        [<a href="#features">Features</a>]
+        [<a href="#architecture">Architecture</a>]
+        [<a href="#api">API</a>]
+        [<a href="#setup">Setup</a>]
+        [<a href="api-docs.html">Full Docs</a>]
+        [<a href="https://github.com/abhinavsingh1311/webhooks-delivery-service">GitHub</a>]
+    </nav>
+
+    <div class="notice">
+        <strong>NOTE:</strong> Live demo unavailable due to hosting costs.
+        Clone the repository and run locally — setup takes &lt;5 minutes.
+        See <a href="#setup">setup instructions</a> below.
+    </div>
+
+    <section id="about">
+        <h2>About This Project</h2>
+        <p>
+            A durable webhook delivery system that guarantees <strong>at-least-once delivery</strong>
+            with automatic retries and exponential backoff.
+        </p>
+
+        <p>
+            <span class="tag">.NET 9</span>
+            <span class="tag">ASP.NET Core</span>
+            <span class="tag">SQL Server</span>
+            <span class="tag">EF Core 9</span>
+            <span class="tag">Docker</span>
+        </p>
+
+        <h3>The Problem</h3>
+        <p>Traditional webhook implementations lose events when:</p>
+        <ul>
+            <li>Network failures occur</li>
+            <li>Third-party services are down</li>
+            <li>Timeouts happen during delivery</li>
+            <li>No retry mechanism exists</li>
+        </ul>
+        <p><strong>Result:</strong> Data inconsistency between systems.</p>
+
+        <h3>The Solution</h3>
+        <p>This service guarantees delivery by:</p>
+        <ul>
+            <li>Persisting events before acknowledging receipt</li>
+            <li>Processing asynchronously with automatic retries</li>
+            <li>Implementing exponential backoff with jitter</li>
+            <li>Moving permanent failures to dead letter queue</li>
+        </ul>
+        <p><strong>Result:</strong> No event is ever lost.</p>
+    </section>
+
+    <section id="features">
+        <h2>Features</h2>
+        <ul>
+            <li><span class="tag green">[✓]</span> Webhook endpoint registration with secret management</li>
+            <li><span class="tag green">[✓]</span> Durable event persistence before acknowledgment</li>
+            <li><span class="tag green">[✓]</span> Automatic retries with exponential backoff (6 max)</li>
+            <li><span class="tag green">[✓]</span> HMAC-SHA256 payload signing</li>
+            <li><span class="tag green">[✓]</span> Dead letter queue for failed deliveries</li>
+            <li><span class="tag green">[✓]</span> Delivery status tracking</li>
+            <li><span class="tag green">[✓]</span> Row-level locking (prevents double-processing)</li>
+            <li><span class="tag green">[✓]</span> API key authentication</li>
+            <li><span class="tag green">[✓]</span> Background worker (IHostedService)</li>
+        </ul>
+    </section>
+
+    <section id="architecture">
+        <h2>Architecture</h2>
+
+        <div class="ascii-box">
+            +-----------------------------------------------------+
+            |  UI (Razor Pages)                                   |
+            |  /endpoints, /endpoints/{id}/events                 |
+            +-----------------------------------------------------+
+            |  API Controllers (JSON)                             |
+            |  /api/endpoints, /api/events, /api/deadletter       |
+            +-----------------------------------------------------+
+            |  API Key Middleware                                 |
+            +-----------------------------------------------------+
+            |  Services (Business Logic)                          |
+            |  DeliveryService, WebHookService                    |
+            +-----------------------------------------------------+
+            |  Repositories (Data Access)                         |
+            |  IWebHookRepo, IDeliveryService                     |
+            +-----------------------------------------------------+
+            |  Entity Framework Core + DbContext                  |
+            +-----------------------------------------------------+
+            |  SQL Server                                         |
+            +-----------------------------------------------------+
+
+            Background Worker runs every 5 seconds:
+            Claims pending events -> Delivers via HTTP -> Updates status
+        </div>
+
+        <h3>Delivery Flow</h3>
+        <div class="ascii-box">
+            User creates event
+            |
+            v
+            +------------------+
+            | Saved as PENDING |
+            +------------------+
+            |
+            v
+            +-------------------+
+            | Worker claims it  |
+            +-------------------+
+            |
+            v
+            +------------------------+
+            | HTTP POST with HMAC    |
+            | signature to endpoint  |
+            +------------------------+
+            |
+            +------+------+
+            |             |
+            SUCCESS        FAILURE
+            (2xx)          (4xx/5xx/timeout)
+            |             |
+            v             v
+            +-----------+  +------------------+
+            | DELIVERED |  | Increment count  |
+            +-----------+  | Calculate retry  |
+            +------------------+
+            |
+            v
+            Attempts >= 6?
+            |       |
+            YES      NO
+            |       |
+            v       v
+            +------------+  +-------------+
+            | DEADLETTER |  | PENDING     |
+            | (manual    |  | (retry at   |
+            | review)    |  | calculated  |
+            +------------+  | time)       |
+            +-------------+
+        </div>
+
+        <h3>Project Structure</h3>
+<pre>
+WebhookService/
+├── WebHooks/                         # ASP.NET Core Web App
+│   ├── Components/Pages/             # Razor Pages UI
+│   │   ├── Endpoints.razor           # Endpoint management
+│   │   └── EndpointEvents.razor      # Events per endpoint
+│   ├── Controllers/
+│   │   └── WebHookApiController.cs   # REST API
+│   ├── Middleware/
+│   │   └── ApiKeyMiddleware.cs       # Auth
+│   └── Workers/
+│       └── DeliveryWorker.cs         # Background processor
+│
+├── WebHooks-System-Library/          # Class Library
+│   ├── Data/                         # DbContext
+│   ├── Entities/                     # Domain models
+│   ├── Repositories/                 # Interfaces
+│   └── Services/                     # Business logic
+│
+└── README.md
+</pre>
+    </section>
+
+    <section id="api">
+        <h2>API Reference</h2>
+
+        <p>Full documentation: <a href="api-docs.html">api-docs.html</a></p>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <code>/api/endpoints</code>
+                <span class="tag yellow">Public</span>
+            </div>
+            <div class="endpoint-body">
+                <p>Register webhook endpoint. Returns API key.</p>
+<pre>{
+  "name": "My Webhook",
+  "url": "https://example.com/webhook",
+  "secret": "your-secret-key"
+}</pre>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <code>/api/events</code>
+                <span class="tag red">Auth Required</span>
+            </div>
+            <div class="endpoint-body">
+                <p>Send webhook event. Header: <code>X-API-Key: your-key</code></p>
+<pre>{
+  "eventPointId": 1,
+  "eventType": "order.created",
+  "payload": "{\"orderId\": 123}"
+}</pre>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <code>/api/events/{id}/status</code>
+                <span class="tag red">Auth Required</span>
+            </div>
+            <div class="endpoint-body">
+                <p>Check delivery status of an event.</p>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <code>/api/deadletter</code>
+                <span class="tag red">Auth Required</span>
+            </div>
+            <div class="endpoint-body">
+                <p>View failed events (after 6 retry attempts).</p>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method patch">PATCH</span>
+                <code>/api/endpoints/{id}/toggle</code>
+                <span class="tag red">Auth Required</span>
+            </div>
+            <div class="endpoint-body">
+                <p>Enable/disable an endpoint.</p>
+            </div>
+        </div>
+
+        <h3>Event Status Values</h3>
+        <table>
+            <tr>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><span class="tag yellow">Pending</span></td>
+                <td>Queued for delivery or retry</td>
+            </tr>
+            <tr>
+                <td><span class="tag green">Delivered</span></td>
+                <td>Successfully delivered (2xx response)</td>
+            </tr>
+            <tr>
+                <td><span class="tag red">Failed</span></td>
+                <td>Endpoint not found or inactive</td>
+            </tr>
+            <tr>
+                <td><span class="tag">DeadLetter</span></td>
+                <td>Max retries (6) exceeded</td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="setup">
+        <h2>Run Locally</h2>
+
+        <h3>Prerequisites</h3>
+        <ul>
+            <li>.NET 9 SDK</li>
+            <li>SQL Server 2019+ or LocalDB</li>
+            <li>Git</li>
+        </ul>
+
+        <h3>Installation</h3>
+<pre>
+# Clone repository
+git clone https://github.com/abhinavsingh1311/webhooks-delivery-service.git
+cd webhooks-delivery-service
+
+# Setup database
+cd WebHooks
+dotnet ef database update
+
+# Run application
+dotnet run
+</pre>
+
+        <p>Application available at: <code>https://localhost:7068</code></p>
+
+        <h3>Configuration</h3>
+        <p>Edit <code>appsettings.json</code>:</p>
+<pre>
+{
+  "ConnectionStrings": {
+    "WebhooksDeliveryDatabase": "Server=.;Database=Webhooks-Delivery;Trusted_Connection=true;TrustServerCertificate=true;"
+  }
+}
+</pre>
+
+        <h3>Test the Flow</h3>
+        <ol>
+            <li>Register endpoint: <code>POST /api/endpoints</code> (save the API key)</li>
+            <li>Send event: <code>POST /api/events</code> with <code>X-API-Key</code> header</li>
+            <li>Check <a href="https://webhook.site">webhook.site</a> for delivery</li>
+            <li>Verify status: <code>GET /api/events/{id}/status</code></li>
+        </ol>
+    </section>
+
+    <section id="tech">
+        <h2>Tech Stack</h2>
+        <table>
+            <tr><th>Layer</th><th>Technology</th></tr>
+            <tr><td>Framework</td><td>.NET 9</td></tr>
+            <tr><td>Web</td><td>ASP.NET Core (Razor Pages + Web API)</td></tr>
+            <tr><td>Database</td><td>SQL Server</td></tr>
+            <tr><td>ORM</td><td>Entity Framework Core 9</td></tr>
+            <tr><td>Background Jobs</td><td>IHostedService</td></tr>
+            <tr><td>Authentication</td><td>Custom API Key Middleware</td></tr>
+        </table>
+    </section>
+
+    <hr>
+
+    <section id="security">
+        <h2>Security Notes</h2>
+        <p>This is a portfolio/demo project. For production, add:</p>
+        <ul>
+            <li>User authentication for UI</li>
+            <li>Multi-tenant data isolation</li>
+            <li>Rate limiting</li>
+            <li>API key rotation</li>
+            <li>Encrypted secret storage</li>
+            <li>Audit logging</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>
+            &copy; 2025 Abhinav Singh |
+            <a href="https://github.com/abhinavsingh1311/webhooks-delivery-service">Source Code</a> |
+            MIT License
+        </p>
+        <p>
+            <small>Last updated: January 2025</small>
+        </p>
+    </footer>
+
+</body>
+</html>
