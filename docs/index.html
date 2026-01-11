@@ -111,35 +111,24 @@
       <h2>Architecture</h2>
 
       <div class="ascii-box">
-        +-----------------------------------------------------+ | UI (Razor
-        Pages) | | /endpoints, /endpoints/{id}/events |
-        +-----------------------------------------------------+ | API
-        Controllers (JSON) | | /api/endpoints, /api/events, /api/deadletter |
-        +-----------------------------------------------------+ | API Key
-        Middleware | +-----------------------------------------------------+ |
-        Services (Business Logic) | | DeliveryService, WebHookService |
-        +-----------------------------------------------------+ | Repositories
-        (Data Access) | | IWebHookRepo, IDeliveryService |
-        +-----------------------------------------------------+ | Entity
-        Framework Core + DbContext |
-        +-----------------------------------------------------+ | SQL Server |
-        +-----------------------------------------------------+ Background
-        Worker runs every 5 seconds: Claims pending events -> Delivers via HTTP
-        -> Updates status
-      </div>
-
-      <h3>Delivery Flow</h3>
-      <div class="ascii-box">
-        User creates event | v +------------------+ | Saved as PENDING |
-        +------------------+ | v +-------------------+ | Worker claims it |
-        +-------------------+ | v +------------------------+ | HTTP POST with
-        HMAC | | signature to endpoint | +------------------------+ |
-        +------+------+ | | SUCCESS FAILURE (2xx) (4xx/5xx/timeout) | | v v
-        +-----------+ +------------------+ | DELIVERED | | Increment count |
-        +-----------+ | Calculate retry | +------------------+ | v Attempts >=
-        6? | | YES NO | | v v +------------+ +-------------+ | DEADLETTER | |
-        PENDING | | (manual | | (retry at | | review) | | calculated |
-        +------------+ | time) | +-------------+
+        +------------------------------------------------------------------------+
+        | UI (RazorPages) | | /endpoints, /endpoints/{id}/events |
+        +------------------------------------------------------------------------+
+        | APIControllers (JSON) | | /api/endpoints, /api/events, /api/deadletter
+        +------------------------------------------------------------------------+
+        | API Key Middleware =>
+        +------------------------------------------------------------------------+
+        | Services (Business Logic) | | DeliveryService, WebHookService |
+        +------------------------------------------------------------------------+
+        | Repositories (Data Access) | | IWebHookRepo, IDeliveryService |
+        +------------------------------------------------------------------------+
+        | EntityFramework Core + DbContext |
+        +------------------------------------------------------------------------+
+        | SQL Server |
+        +------------------------------------------------------------------------+
+        |Background Worker runs every 5 seconds: Claims pending events ------ ->
+        | Delivers via HTTP -> Updates status |
+        +------------------------------------------------------------------------+
       </div>
 
       <h3>Project Structure</h3>
